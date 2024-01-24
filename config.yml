@@ -10,9 +10,9 @@ server:
 
 database:
   driverClass: org.postgresql.Driver
-  user: ${DB_USER:-default developer}
-  password: ${DB_PASS:-default developer}
-  url: jdbc:postgresql://${DB_HOST:-default localhost}/${DB_NAME:-default dwkg-dev}
+  user: ${DB_USER:-developer}
+  password: ${DB_PASS:-developer}
+  url: jdbc:postgresql://${DB_HOST:-localhost}/${DB_NAME:-dwkg-dev}
   properties:
     charSet: UTF-8
   maxWaitForConnection: 1s

@@ -34,6 +34,10 @@ dependencies {
 }
 
 tasks {
+    compileJava {
+        sourceCompatibility = "21"
+        targetCompatibility = "21"
+    }
     compileKotlin {
         kotlinOptions.jvmTarget = "21"
     }
