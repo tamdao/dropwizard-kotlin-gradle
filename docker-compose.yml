@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+        DB_HOST: db
+        DB_USER: developer
+        DB_PASS: developer
+        DB_NAME: dwkg-dev
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13.5-alpine
+    environment:
+      POSTGRES_DB: dwkg-dev
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --locale=C'
+      POSTGRES_PASSWORD: developer
+      POSTGRES_USER: developer
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
