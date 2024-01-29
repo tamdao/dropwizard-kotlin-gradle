@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.parameters.RequestBody
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import jakarta.validation.Valid
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -87,11 +86,7 @@ class NonprofitResource(private val nonprofitDAO: NonprofitDAO, private val gran
 
     @POST
     @Operation(summary = "Add a new nonprofit", description = "Creates a new nonprofit entity")
-    @RequestBody(
-        description = "Nonprofit object that needs to be added",
-        required = true,
-        content = [Content(schema = Schema(implementation = NonprofitRequest::class))]
-    )
+
     @ApiResponses(
         value = [
             ApiResponse(
@@ -102,7 +97,13 @@ class NonprofitResource(private val nonprofitDAO: NonprofitDAO, private val gran
             ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    fun addNonprofit(@Valid nonprofit: NonprofitRequest): Response {
+    fun addNonprofit(
+        @RequestBody(
+            description = "Nonprofit object that needs to be added",
+            required = true,
+            content = [Content(schema = Schema(implementation = NonprofitRequest::class))]
+        ) nonprofit: NonprofitRequest
+    ): Response {
         LOGGER.info("Adding nonprofit {}", nonprofit)
         try {
             val id = nonprofitDAO.insert(
