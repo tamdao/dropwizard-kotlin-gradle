@@ -1,5 +1,6 @@
 package com.tamdao.webapp.resources
 
+import com.github.doyaaaaaken.kotlincsv.dsl.csvWriter
 import com.tamdao.webapp.dao.GrantSubmissionDAO
 import com.tamdao.webapp.dao.NonprofitDAO
 import com.tamdao.webapp.entity.GrantSubmission
@@ -28,7 +29,7 @@ class NonprofitResource(private val nonprofitDAO: NonprofitDAO, private val gran
 
 
     @GET
-    @Operation(summary = "Get a list of nonprofits", description = "Returns a list of nonprofit organizations")
+    @Operation(summary = "Get a list of nonprofits", description = "Returns a list of nonprofits")
     @ApiResponses(
         value = [
             ApiResponse(
@@ -48,11 +49,65 @@ class NonprofitResource(private val nonprofitDAO: NonprofitDAO, private val gran
     fun getNonprofits(): Response {
         LOGGER.info("Fetching nonprofits")
         try {
-            val nonprofits: List<Nonprofit> = nonprofitDAO.find()
+            val nonprofits = nonprofitDAO.find()
             LOGGER.info("Fetched nonprofits count - " + nonprofits.size)
             return Response.ok(nonprofits).build()
         } catch (e: Exception) {
             LOGGER.error("Error while fetching nonprofits", e)
+            return Response.serverError().build()
+        }
+    }
+
+    @GET
+    @Path("/export")
+    @Operation(summary = "Export a list of nonprofits", description = "Returns a csv of nonprofits")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved csv of nonprofits",
+                content = [Content(
+                    mediaType = "text/csv"
+                )]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error"
+            )
+        ]
+    )
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    fun exportNonprofits(): Response {
+        LOGGER.info("Exporting nonprofits")
+        try {
+            val nonprofits = nonprofitDAO.find()
+            LOGGER.info("Exported nonprofits count - " + nonprofits.size)
+
+            val rows = mutableListOf(listOf("ID", "Legal Name", "EIN", "Mission", "Street", "City", "State", "Zip"))
+
+            nonprofits.forEach { nonprofit ->
+                rows.add(
+                    listOf(
+                        nonprofit.id.toString(),
+                        nonprofit.legalName,
+                        nonprofit.ein,
+                        nonprofit.mission,
+                        nonprofit.address.street,
+                        nonprofit.address.city,
+                        nonprofit.address.state,
+                        nonprofit.address.zip
+                    )
+                )
+            }
+
+            val csvString = csvWriter().writeAllAsString(rows)
+
+            return Response.ok(csvString)
+                .type("text/csv")
+                .header("Content-Disposition", "attachment; filename=\"nonprofits.csv\"")
+                .build()
+        } catch (e: Exception) {
+            LOGGER.error("Error while exporting nonprofits", e)
             return Response.serverError().build()
         }
     }
@@ -189,6 +244,71 @@ class NonprofitResource(private val nonprofitDAO: NonprofitDAO, private val gran
             return Response.ok(submissions).build()
         } catch (e: Exception) {
             LOGGER.error("Error while fetching submission", e)
+            return Response.serverError().build()
+        }
+    }
+
+    @GET
+    @Path("/submissions/export")
+    @Operation(summary = "Export a list of grant submissions", description = "Returns a csv of grant submissions")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved csv of grant submissions",
+                content = [Content(
+                    mediaType = "text/csv"
+                )]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error"
+            )
+        ]
+    )
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    fun exportSubmissions(): Response {
+        LOGGER.info("Exporting grant submissions")
+        try {
+            val submissions = grantSubmissionDAO.find()
+            LOGGER.info("Exported grant submissions count - " + submissions.size)
+
+            val rows = mutableListOf(
+                listOf(
+                    "ID",
+                    "Grant Name",
+                    "Requested Amount",
+                    "Awarded Amount",
+                    "Grant Type",
+                    "Tags",
+                    "Duration Start",
+                    "Duration End"
+                )
+            )
+
+            submissions.forEach { submission ->
+                rows.add(
+                    listOf(
+                        submission.id.toString(),
+                        submission.grantName,
+                        submission.requestedAmount.toString(),
+                        submission.awardedAmount.toString(),
+                        submission.grantType.toString(),
+                        submission.tags,
+                        submission.duration.grantStart.toString(),
+                        submission.duration.grantEnd.toString()
+                    )
+                )
+            }
+
+            val csvString = csvWriter().writeAllAsString(rows)
+
+            return Response.ok(csvString)
+                .type("text/csv")
+                .header("Content-Disposition", "attachment; filename=\"grant_submissions.csv\"")
+                .build()
+        } catch (e: Exception) {
+            LOGGER.error("Error while exporting nonprofits", e)
             return Response.serverError().build()
         }
     }

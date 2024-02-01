@@ -31,6 +31,8 @@ dependencies {
     implementation("com.smoketurner:dropwizard-swagger:4.0.5-1")
 
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.16.1")
+
+    implementation("com.github.doyaaaaaken:kotlin-csv-jvm:1.9.3")
 }
 
 tasks {

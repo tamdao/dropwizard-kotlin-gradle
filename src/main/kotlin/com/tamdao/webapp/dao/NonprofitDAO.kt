@@ -11,7 +11,7 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper
 
 
 interface NonprofitDAO {
-    @SqlQuery("select * from nonprofits")
+    @SqlQuery("select * from nonprofits order by id asc")
     @UseRowMapper(NonprofitMapper::class)
     fun find(): List<Nonprofit>
 

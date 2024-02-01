@@ -11,7 +11,7 @@ import org.jdbi.v3.sqlobject.statement.UseRowMapper
 
 
 interface GrantSubmissionDAO {
-    @SqlQuery("select * from grant_submissions")
+    @SqlQuery("select * from grant_submissions order by id asc")
     @UseRowMapper(GrantSubmissionMapper::class)
     fun find(): List<GrantSubmission>
 
